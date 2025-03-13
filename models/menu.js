@@ -2,23 +2,17 @@ const mongoose = require('mongoose')
 const menuRouter = require('../controllers/menus')
 
 // Definir el esquema del menú
+
 const menuSchema = new mongoose.Schema({
-    id: Number,
-    nombre: {
-        type: String,
-        required: [true, 'El nombre del menú es obligatorio'], // Validación: nombre es requerido
-        trim: true // Elimina espacios en blanco al inicio y final
-    },
-    precio: {
-        type: Number,
-        required: [true, 'El precio es obligatorio'], // Validación: precio es requerido
-        min: [0, 'El precio no puede ser negativo'] // Validación: precio mínimo es 0
-    },
-    categoria: {
-        type: Number,
-        required: [true, 'La categoría es obligatoria'] // Validación: categoría es requerida
-    }
-})
+    menu: [
+        {
+            id: Number,
+            nombre: String,
+            precio: Number,
+            categoria: Number,
+        },
+    ],
+});
 
 // Transformar el objeto devuelto por Mongoose
 menuSchema.set('toJSON', {

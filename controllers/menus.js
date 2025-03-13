@@ -59,13 +59,19 @@ menuRouter.get('/producto/:id', async (req, res) => {
         const productoId = Number(req.params.id); // Convertir el ID a número
         console.log('Buscando producto con ID:', productoId);
 
-        // Buscar el menú que contiene el producto
-        const menu = await Menu.findOne({ 'menu.id': productoId });
-        console.log('Menú encontrado:', menu);
+        // Buscar el menú que contiene el producto y convertirlo en un objeto plano
+        const menu = await Menu.findOne({ 'menu.id': productoId }).lean();
+        console.log('Menú encontrado (como objeto plano):', menu);
 
         if (!menu) {
             console.error('Menú no encontrado');
             return res.status(404).json({ error: 'Menú no encontrado' });
+        }
+
+        // Verificar que el campo "menu" esté definido y sea un array
+        if (!menu.menu || !Array.isArray(menu.menu)) {
+            console.error('El campo "menu" no está definido o no es un array');
+            return res.status(500).json({ error: 'Estructura de datos inválida' });
         }
 
         // Buscar el producto dentro del array "menu"

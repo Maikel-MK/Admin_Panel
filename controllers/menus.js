@@ -151,17 +151,34 @@ menuRouter.put('/actualizar/:id', async (req, res) => {
     }
 });
 
-// Ruta para eliminar un producto
 menuRouter.delete('/delete/:id', async (req, res) => {
     try {
-        const producto = await Menu.findByIdAndDelete(req.params.id);
+        const productoId = Number(req.params.id); // Convertir el ID a número
+        console.log('ID del producto a eliminar:', productoId);
 
-        if (!producto) {
-            console.error('Producto no encontrado para eliminar');
+        // Buscar el menú que contiene el producto
+        const menu = await Menu.findOne({ 'menu.id': productoId });
+
+        if (!menu) {
+            console.error('Menú no encontrado');
+            return res.status(404).json({ error: 'Menú no encontrado' });
+        }
+
+        // Buscar el índice del producto dentro del array "menu"
+        const productoIndex = menu.menu.findIndex(item => item.id === productoId);
+
+        if (productoIndex === -1) {
+            console.error('Producto no encontrado en el menú');
             return res.status(404).json({ error: 'Producto no encontrado' });
         }
 
-        console.log('Producto eliminado exitosamente:', producto);
+        // Eliminar el producto del array "menu"
+        menu.menu.splice(productoIndex, 1);
+
+        // Guardar el menú actualizado en la base de datos
+        await menu.save();
+
+        console.log('Producto eliminado exitosamente');
         res.status(200).json({ message: 'Producto eliminado' });
     } catch (error) {
         console.error('Error al eliminar el producto:', error.message);

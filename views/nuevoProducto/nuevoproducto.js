@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Validaciones básicas
             if (!nombre || !categoria || isNaN(precio) || precio <= 0) {
-                alert('Por favor, complete todos los campos correctamente.');
+                mostrarNotificacion('Por favor, complete todos los campos correctamente.', 'error');
                 return;
             }
 
@@ -24,14 +24,40 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.log('Creando nuevo producto:', nuevoProducto);
                 const respuesta = await axios.post('/api/menus/', nuevoProducto);
                 console.log('Producto creado:', respuesta.data);
-                alert('Producto creado correctamente. Serás redirigido a la página principal.');
-                window.location.href = '/'; // Redirigir a la página principal
+
+                // Mostrar notificación de éxito
+                mostrarNotificacion('Producto creado correctamente.', 'success');
+
+                setTimeout(() => {
+                    window.location.href = '/';
+                }, 1000);
             } catch (error) {
                 console.error('Error al crear el producto:', error.response ? error.response.data : error.message);
-                alert('Error al crear el producto');
+                mostrarNotificacion('Error al crear el producto.', 'error');
             }
         });
     } else {
         console.error('El formulario no se encontró en el DOM');
     }
 });
+
+// Función para mostrar notificaciones personalizadas
+function mostrarNotificacion(mensaje, tipo) {
+    const notificaciones = document.getElementById('notificaciones');
+
+    // Crear el elemento de la notificación
+    const notificacion = document.createElement('div');
+    notificacion.className = `px-4 py-2 rounded-md shadow-md text-white ${
+        tipo === 'success' ? 'bg-green-500' :
+        tipo === 'error' ? 'bg-red-500' :
+        tipo === 'warning' ? 'bg-yellow-500' :
+        'bg-blue-500'
+    }`;
+    notificacion.textContent = mensaje;
+
+    notificaciones.appendChild(notificacion);
+
+    setTimeout(() => {
+        notificacion.remove();
+    }, 3000);
+}

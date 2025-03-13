@@ -4,7 +4,6 @@ document.addEventListener('DOMContentLoaded', mostrarProductos);
 listado.addEventListener('click', confirmarEliminar);
 
 // Función para obtener los productos
-// Función para obtener los productos
 async function obtenerProductos() {
     try {
         const url = '/api/menus/lista-menu';
@@ -71,6 +70,7 @@ async function mostrarProductos() {
 
 // Función para confirmar la eliminación de un producto
 async function confirmarEliminar(e) {
+    e.preventDefault()
     if (e.target.classList.contains('eliminar')) {
         const productoID = e.target.dataset.producto; // Obtener el ID del producto
         console.log('ID del producto a eliminar:', productoID);
@@ -88,8 +88,39 @@ async function eliminarProducto(id) {
     try {
         const response = await axios.delete(`/api/menus/delete/${id}`);
         console.log('Producto eliminado:', response.data.message);
-        mostrarProductos(); // Recargar la lista después de eliminar
+
+        // Mostrar notificación de éxito
+        mostrarNotificacion('Producto eliminado correctamente.', 'success');
+
+        // Recargar la lista de productos
+        mostrarProductos();
     } catch (error) {
         console.error('Error al eliminar el producto:', error.message);
+
+        // Mostrar notificación de error
+        mostrarNotificacion('Error al eliminar el producto.', 'error');
     }
+}
+
+// Función para mostrar notificaciones personalizadas
+function mostrarNotificacion(mensaje, tipo) {
+    const notificaciones = document.getElementById('notificaciones');
+
+    // Crear el elemento de la notificación
+    const notificacion = document.createElement('div');
+    notificacion.className = `px-4 py-2 rounded-md shadow-md text-white ${
+        tipo === 'success' ? 'bg-green-500' :
+        tipo === 'error' ? 'bg-red-500' :
+        tipo === 'warning' ? 'bg-yellow-500' :
+        'bg-blue-500'
+    }`;
+    notificacion.textContent = mensaje;
+
+    // Agregar la notificación al contenedor
+    notificaciones.appendChild(notificacion);
+
+    // Eliminar la notificación después de 5 segundos
+    setTimeout(() => {
+        notificacion.remove();
+    }, 5000);
 }

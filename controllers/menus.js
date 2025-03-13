@@ -112,8 +112,11 @@ menuRouter.put('/actualizar/:id', async (req, res) => {
             return res.status(404).json({ error: 'Producto no encontrado' });
         }
 
-        // Actualizar el producto
-        menu.menu[productoIndex] = { ...menu.menu[productoIndex], ...datosActualizados };
+        // Actualizar el producto, asegurándote de mantener el ID
+        menu.menu[productoIndex] = {
+            id: productoId, // Mantener el ID original
+            ...datosActualizados, // Aplicar los nuevos datos
+        };
 
         // Guardar el menú actualizado
         await menu.save();

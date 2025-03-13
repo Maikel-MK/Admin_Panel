@@ -6,7 +6,7 @@ const menuRouter = require('../controllers/menus')
 const menuSchema = new mongoose.Schema({
     menu: [
         {
-            id: Number,
+            id: Number, 
             nombre: String,
             precio: Number,
             categoria: Number,

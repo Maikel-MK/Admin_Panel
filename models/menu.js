@@ -12,7 +12,7 @@ const menuSchema = new mongoose.Schema({
             categoria: Number,
         },
     ],
-});
+})
 
 // Transformar el objeto devuelto por Mongoose
 menuSchema.set('toJSON', {

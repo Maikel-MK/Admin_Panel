@@ -19,19 +19,42 @@ const validateProductData = (req, res, next) => {
     next(); // Si todo está bien, pasa al siguiente middleware o ruta
 };
 
-// Ruta para crear nuevo producto
-menuRouter.post('/', validateProductData, async (req, res) => {
+// Ruta para crear un nuevo producto
+menuRouter.post('/', async (req, res) => {
     try {
-        const producto = new Menu(req.body);
-        await producto.save();
-        console.log('Producto creado exitosamente:', producto);
-        res.status(201).json(producto);
+        const { nombre, precio, categoria } = req.body;
+
+        // Obtener el último ID en el array "menu"
+        const ultimoMenu = await Menu.findOne().sort({ 'menu.id': -1 });
+        const ultimoProducto = ultimoMenu ? ultimoMenu.menu[ultimoMenu.menu.length - 1] : null;
+        const nuevoId = ultimoProducto ? ultimoProducto.id + 1 : 1; // Generar un nuevo ID
+
+        // Crear el nuevo producto
+        const nuevoProducto = {
+            id: nuevoId,
+            nombre,
+            precio,
+            categoria,
+        };
+
+        // Buscar un menú existente o crear uno nuevo
+        let menu = await Menu.findOne();
+        if (!menu) {
+            menu = new Menu({ menu: [] }); // Crear un nuevo menú si no existe
+        }
+
+        // Agregar el nuevo producto al array "menu"
+        menu.menu.push(nuevoProducto);
+
+        // Guardar el menú actualizado en la base de datos
+        await menu.save();
+
+        res.status(201).json(nuevoProducto); // Devolver el producto creado
     } catch (error) {
         console.error('Error al crear el producto:', error.message);
-        res.status(400).json({ error: error.message });
+        res.status(500).json({ error: 'Error interno del servidor' });
     }
 });
-
 // Ruta para obtener todos los menús
 menuRouter.get('/lista-menu', async (request, response) => {
     try {

@@ -46,8 +46,8 @@ async function mostrarProductos() {
     }
 
     productos.forEach(producto => {
-        const { nombre, precio, categoria, id } = producto; // Asegúrate de que los campos coincidan con el modelo
-
+        const { nombre, precio, categoria, id } = producto;
+    
         const row = document.createElement('tr');
         row.innerHTML = `
             <td class="px-6 py-4 border-b">
@@ -60,11 +60,11 @@ async function mostrarProductos() {
                 <p>${categoria}</p>
             </td>
             <td class="px-6 py-4 border-b">
-                <a href="/editar/?id=${id}" class="text-teal-600 hover:text-teal-900">Editar</a>
+                <a href="/editar/" class="text-teal-600 hover:text-teal-900" onclick="localStorage.setItem('productoId', '${id}')">Editar</a>
                 <a href="#" data-producto="${id}" class="text-red-600 hover:text-red-900 eliminar">Eliminar</a>
             </td>
         `;
-
+    
         listado.appendChild(row);
     });
 }

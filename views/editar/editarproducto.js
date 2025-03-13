@@ -1,16 +1,18 @@
 // Llamar a la función cuando la página cargue
 document.addEventListener('DOMContentLoaded', llenarFormulario);
 
-// Obtener el ID del producto desde la URL
-const urlParams = new URLSearchParams(window.location.search);
-const productoId = urlParams.get('id'); // Obtiene el valor del parámetro 'id'
+// Obtener el ID del producto desde el LocalStorage
+const productoId = localStorage.getItem('productoId');
+console.log('ID del producto desde localStorage:', productoId);
 
 async function obtenerProductoPorId(id) {
     try {
+        console.log('Realizando solicitud para obtener el producto con ID:', id);
         const respuesta = await axios.get(`/api/menus/producto/${id}`);
+        console.log('Respuesta del backend:', respuesta.data);
         return respuesta.data; // Retorna los datos del producto
     } catch (error) {
-        console.error('Error al obtener el producto:', error.message);
+        console.error('Error al obtener el producto:', error.response ? error.response.data : error.message);
         return null;
     }
 }
@@ -21,9 +23,11 @@ async function llenarFormulario() {
         return;
     }
 
+    console.log('Llenando formulario para el producto con ID:', productoId);
     const producto = await obtenerProductoPorId(productoId);
 
     if (producto) {
+        console.log('Producto encontrado:', producto);
         document.getElementById('nombre').value = producto.nombre;
         document.getElementById('precio').value = producto.precio;
         document.getElementById('categoria').value = producto.categoria;
@@ -48,12 +52,13 @@ async function actualizarProducto(e) {
     };
 
     try {
+        console.log('Actualizando producto con ID:', id);
         const respuesta = await axios.put(`/api/menus/actualizar/${id}`, datosActualizados); 
         console.log('Producto actualizado:', respuesta.data);
         alert('Producto actualizado correctamente');
         window.location.href = '/'; // Redirigir a la página principal
     } catch (error) {
-        console.error('Error al actualizar el producto:', error.message);
+        console.error('Error al actualizar el producto:', error.response ? error.response.data : error.message);
         alert('Error al actualizar el producto');
     }
 }

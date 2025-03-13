@@ -56,12 +56,29 @@ menuRouter.get('/lista-menu', async (request, response) => {
 // Ruta para obtener un producto por id
 menuRouter.get('/producto/:id', async (req, res) => {
     try {
-        const producto = await Menu.findById(req.params.id);
+        const productoId = Number(req.params.id); // Convertir el ID a número
+        console.log('Buscando producto con ID:', productoId);
+
+        // Buscar el menú que contiene el producto
+        const menu = await Menu.findOne({ 'menu.id': productoId });
+        console.log('Menú encontrado:', menu);
+
+        if (!menu) {
+            console.error('Menú no encontrado');
+            return res.status(404).json({ error: 'Menú no encontrado' });
+        }
+
+        // Buscar el producto dentro del array "menu"
+        const producto = menu.menu.find(item => item.id === productoId);
+        console.log('Producto encontrado:', producto);
 
         if (!producto) {
+            console.error('Producto no encontrado en el menú');
             return res.status(404).json({ error: 'Producto no encontrado' });
         }
 
+        // Devolver el producto encontrado
+        console.log('Devolviendo producto:', producto);
         res.status(200).json(producto);
     } catch (error) {
         console.error('Error al obtener el producto:', error.message);
@@ -72,13 +89,30 @@ menuRouter.get('/producto/:id', async (req, res) => {
 // Ruta para  Actualizar un Producto por ID
 menuRouter.put('/actualizar/:id', async (req, res) => {
     try {
-        const producto = await Menu.findByIdAndUpdate(req.params.id, req.body, { new: true });
+        const productoId = Number(req.params.id); // Convertir el ID a número
+        const datosActualizados = req.body;
 
-        if (!producto) {
+        // Buscar el menú que contiene el producto
+        const menu = await Menu.findOne({ 'menu.id': productoId });
+
+        if (!menu) {
+            return res.status(404).json({ error: 'Menú no encontrado' });
+        }
+
+        // Buscar el índice del producto dentro del array "menu"
+        const productoIndex = menu.menu.findIndex(item => item.id === productoId);
+
+        if (productoIndex === -1) {
             return res.status(404).json({ error: 'Producto no encontrado' });
         }
 
-        res.status(200).json(producto);
+        // Actualizar el producto
+        menu.menu[productoIndex] = { ...menu.menu[productoIndex], ...datosActualizados };
+
+        // Guardar el menú actualizado
+        await menu.save();
+
+        res.status(200).json(menu.menu[productoIndex]);
     } catch (error) {
         console.error('Error al actualizar el producto:', error.message);
         res.status(500).json({ error: 'Error interno del servidor' });
